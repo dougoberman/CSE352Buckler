@@ -13,7 +13,8 @@ void SWI1_EGU1_IRQHandler(void) {
 
 // Step B: Write an IRQ Handler/ISR for the Interrupt
 void GPIOTE_IRQHandler(void) {
-   // Clear 
+   // Clear the Events register
+   
 }
 
 int main(void) {
