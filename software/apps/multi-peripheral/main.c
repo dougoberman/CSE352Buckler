@@ -2,6 +2,8 @@
 //
 // Write messages to a Newhaven OLED display over SPI
 
+// Task: Modify the following application to obtain the values from an I2C sensor and display on the display
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
