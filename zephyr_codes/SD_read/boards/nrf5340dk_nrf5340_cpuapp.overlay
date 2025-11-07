@@ -1,0 +1,170 @@
+/*
+ * Copyright (c) 2021 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ &clock {	
+	status = "okay";
+};
+
+&gpio_fwd {
+    status = "disabled";
+};
+
+&pinctrl {	
+
+	i2s0_default_alt: i2s0_default_alt {
+		group1 {
+			psels = <NRF_PSEL(I2S_SCK_M, 0, 26)>,
+				<NRF_PSEL(I2S_LRCK_M, 0, 6)>,  
+				<NRF_PSEL(I2S_SDOUT, 1, 13)>,
+				<NRF_PSEL(I2S_SDIN, 0, 25)>;
+		};
+	};
+};
+
+
+&clock {
+	hfclkaudio-frequency = <11289600>;
+};
+
+i2s_rxtx: &i2s0 {
+	status = "okay";
+	pinctrl-0 = <&i2s0_default_alt>;
+	pinctrl-names = "default";
+	clock-source = "ACLK";
+};
+
+
+
+&spi1 {
+    compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-0 = <&spi1_default>;
+	pinctrl-1 = <&spi1_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>; //CS for SD	
+
+    sdhc0: sdhc@0 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <0>;
+        status = "okay";
+        label = "SDHC0";
+        // spi-max-frequency = <24000000>;
+		spi-max-frequency = <400000>;
+		mmc {
+			compatible = "zephyr,sdmmc-disk";
+			status = "okay";
+			// disk-name = "SD Card";
+		};
+    };
+};
+
+&pinctrl {
+	spi1_default: spi1_default {		
+
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 0)>,
+						<NRF_PSEL(SPIM_MOSI, 1, 1)>,
+						<NRF_PSEL(SPIM_MISO, 0, 10)>;
+		};
+	};
+
+	spi1_sleep: spi1_sleep {
+		group1 {			
+					psels = <NRF_PSEL(SPIM_SCK, 1, 0)>,
+						<NRF_PSEL(SPIM_MOSI, 1, 1)>,
+						<NRF_PSEL(SPIM_MISO, 0, 10)>;
+				low-power-enable;
+		};
+	};
+};
+
+&gpio1 {
+    status = "okay";
+};
+/ {
+    aliases {
+        button5 = &button5;
+        button6 = &button6;
+        button7 = &button7;
+        button8 = &button8;
+    };
+};
+
+/ {
+    buttons {
+        compatible = "gpio-keys";
+
+        button5: button_5 {
+            gpios = <&gpio1 6 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Button 5";
+        };
+        button6: button_6 {
+            gpios = <&gpio1 7 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Button 6";
+        };
+        button7: button_7 {
+            gpios = <&gpio1 8 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "POWER Button";
+        };
+        button8: button_8 {
+            gpios = <&gpio1 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+            label = "Button 7";
+        };
+    };
+};
+
+
+// &pwm_led0 {
+// 	pwms = <&pwm0 0 20 PWM_POLARITY_NORMAL>;
+// };
+
+
+// group1 {
+		// 	psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+		// 				<NRF_PSEL(SPIM_MOSI, 0, 9)>,
+		// 				<NRF_PSEL(SPIM_MISO, 0, 10)>;
+		// };
+
+// psels = <NRF_PSEL(SPIM_SCK, 0, 8)>,
+			// 			<NRF_PSEL(SPIM_MOSI, 0, 9)>,
+			// 			<NRF_PSEL(SPIM_MISO, 0, 10)>;
+				// low-power-enable;
+
+// <&gpio0 5 GPIO_ACTIVE_LOW>, //CS for ADC
+               
+	// //Zephyr does not have built in drive for MCP3004
+	// mcp3004: mcp3004@0 {
+    //     //compatible = "microchip,mcp3004";
+	// 	compatible = "vnd,spi-device";
+    //     reg = <0>;
+    //     spi-max-frequency = <1000000>;
+	// 	label = "mcp3004";
+    // };
+
+	// i2c0_default_alt: i2c0_default_alt {
+	// 	group1 {
+	// 		psels = <NRF_PSEL(TWIM_SDA, 0, 25)>,
+	// 			<NRF_PSEL(TWIM_SCL, 0, 26)>;
+	// 	};
+	// };
+
+	// i2c0_sleep_alt: i2c0_sleep_alt {
+	// 	group1 {
+	// 		psels = <NRF_PSEL(TWIM_SDA, 0, 25)>,
+	// 			<NRF_PSEL(TWIM_SCL, 0, 26)>;
+	// 		low-power-enable;
+	// 	};
+	// };
+// &i2c1 {
+// 	status = "okay";
+// 	pinctrl-0 = <&i2c0_default_alt>;
+// 	pinctrl-1 = <&i2c0_sleep_alt>;
+// 	pinctrl-names = "default", "sleep";
+
+// 	wm8731: wm8731@1a {
+// 		compatible = "wolfson,wm8731";
+// 		reg = <0x1a>;
+// 	};
+// };
