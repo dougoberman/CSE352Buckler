@@ -144,7 +144,6 @@ uint32_t read_counter() {
 
 /**
  * Initialize PWM on pin 11
- * (This function is provided - no need to modify)
  */
 void init_pwm(uint16_t pwm, uint32_t prescalar, uint32_t counterTop) {
     uint16_t pwm_seq[4] = ;
