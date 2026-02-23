@@ -1,0 +1,80 @@
+/*
+ * Device Tree Overlay — nrf52dk_nrf52832.overlay
+ * CSE 352/452 — Embedded Systems Lab 7
+ *
+ * Purpose: Describe the Berkeley Buckler Rev C daughter board hardware
+ *          so that Zephyr firmware can reference it by alias name rather
+ *          than by hard-coded pin numbers.
+ *
+ * Pin assignments (from Buckler Rev C schematic):
+ * ┌──────────────────┬──────────────┬──────────────────────────────────────┐
+ * │ Component        │ nRF52 Pin    │ Notes                                │
+ * ├──────────────────┼──────────────┼──────────────────────────────────────┤
+ * │ LED_0 (Red)      │ P0.25        │ Active-low — VCC → 1kΩ → LED → GPIO │
+ * │ LED_1 (Yellow)   │ P0.24        │ Active-low                           │
+ * │ LED_2 (Blue)     │ P0.23        │ Active-low                           │
+ * │ BUTTON_0         │ P0.28        │ Active-low — 10kΩ pull-up to 3.3 V  │
+ * │ SWITCH_0         │ P0.22        │ Active-low — slide switch            │
+ * └──────────────────┴──────────────┴──────────────────────────────────────┘
+ *
+ * What "active-low" means for students:
+ *   - Driving the GPIO pin LOW  (0 V) turns the LED ON  / button "active"
+ *   - Driving the GPIO pin HIGH (3.3 V, via pull-up) turns it OFF / released
+ *   - GPIO_ACTIVE_LOW tells Zephyr to invert polarity automatically, so
+ *     gpio_pin_set_dt(&led, 1) turns the LED ON even though the physical pin
+ *     goes LOW.  The firmware never has to think about the inversion.
+ *
+ * Why define nodes here rather than override the board's existing nodes?
+ *   The nRF52 DK board DTS defines its own led0/led1/button0 nodes pointing
+ *   at its on-board pins (P0.17, P0.13, etc.).  This overlay REPLACES those
+ *   definitions at the same device tree paths so the Buckler pins win.
+ *   Defining the full node tree here (rather than just patching gpios with
+ *   &led0 { ... }) makes the overlay self-contained and portable — students
+ *   can read this file alone to understand all hardware wiring.
+ */
+
+/ {
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		sw0  = &button0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		/*
+		 * Each LED node sets the GPIO pin and polarity.  The label
+		 * (e.g. led0:) is what the alias above resolves to, and what
+		 * GPIO_DT_SPEC_GET(DT_ALIAS(led0), gpios) fetches in firmware.
+		 */
+		led0: led_0 {
+			gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
+			label = "Red LED (LED0)";
+		};
+		led1: led_1 {
+			gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
+			label = "Yellow LED (LED1)";
+		};
+		led2: led_2 {
+			gpios = <&gpio0 23 GPIO_ACTIVE_LOW>;
+			label = "Blue LED (LED2)";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+
+		/*
+		 * GPIO_PULL_UP enables the nRF52's internal pull-up in addition
+		 * to the 10 kΩ external pull-up already on the Buckler board.
+		 * The interrupt edge (EDGE_TO_ACTIVE) is configured in firmware,
+		 * not in the device tree.
+		 */
+		button0: button_0 {
+			gpios = <&gpio0 28 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Buckler Button 0";
+		};
+	};
+};
